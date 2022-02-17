@@ -694,7 +694,8 @@ namespace Microsoft.AspNetCore.OData.Deltas
         {
             Debug.Assert(name != null, "Argument name is null");
 
-            if (!(_allProperties.ContainsKey(name) && _updatableProperties.Contains(name)))
+            //Delta nested resources are navigational properties and only need to check property name is valid
+            if (!_allProperties.ContainsKey(name)
             {
                 return false;
             }
