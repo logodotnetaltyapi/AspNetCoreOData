@@ -131,7 +131,7 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
 
                 IEnumerable newCollection;
                 if (CanSetProperty(resource, propertyName) &&
-                    CollectionDeserializationHelpers.TryCreateInstance(propertyType, edmPropertyType, elementType, out newCollection))
+                    CollectionDeserializationHelpers.TryCreateInstance(propertyType, edmPropertyType, elementType, out newCollection,context:context))
                 {
                     // settable collections
                     collection.AddToCollection(newCollection, elementType, resourceType, propertyName, propertyType, context);

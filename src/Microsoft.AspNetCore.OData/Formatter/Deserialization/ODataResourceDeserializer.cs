@@ -256,22 +256,28 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
                         Error.Format(SRResources.MappingDoesNotContainResourceType, structuredType.FullName()));
                 }
 
-                if (readContext.IsDeltaOfT || readContext.IsDeltaDeleted)
+                if (readContext.IsDeltaOrDeltaSetOfT || readContext.IsDeltaDeleted)
                 {
                     IEnumerable<string> structuralProperties = structuredType.StructuralProperties()
                         .Select(edmProperty => model.GetClrPropertyName(edmProperty));
+
+                    Type resourceType = readContext.ResourceType;
+                    if (readContext.IsDeltaSetOfT)
+                    {
+                        resourceType = typeof(Delta<>).MakeGenericType(resourceType.GetGenericArguments().First());
+                    }
 
                     if (structuredType.IsOpen())
                     {
                         PropertyInfo dynamicDictionaryPropertyInfo = model.GetDynamicPropertyDictionary(
                             structuredType.StructuredDefinition());
 
-                        return Activator.CreateInstance(readContext.ResourceType, clrType, structuralProperties,
+                        return Activator.CreateInstance(resourceType, clrType, structuralProperties,
                             dynamicDictionaryPropertyInfo);
                     }
                     else
                     {
-                        return Activator.CreateInstance(readContext.ResourceType, clrType, structuralProperties);
+                        return Activator.CreateInstance(resourceType, clrType, structuralProperties);
                     }
                 }
                 else
@@ -604,7 +610,7 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
                 }
             }
 
-            nestedReadContext.ResourceType = readContext.IsDeltaOfT
+            nestedReadContext.ResourceType = readContext.IsDeltaOrDeltaSetOfT
                 ? typeof(Delta<>).MakeGenericType(clrType)
                 : clrType;
             return deserializer.ReadInline(resourceWrapper, edmType, nestedReadContext);
@@ -620,7 +626,7 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
             object value = ReadNestedResourceSetInline(resourceSetWrapper, nestedProperty.Type, readContext);
 
             string propertyName = readContext.Model.GetClrPropertyName(nestedProperty);
-            DeserializationHelpers.SetCollectionProperty(resource, nestedProperty, value, propertyName);
+            DeserializationHelpers.SetCollectionProperty(resource, nestedProperty, value, propertyName, context: readContext);
         }
 
         private void ApplyDynamicResourceSetInNestedProperty(string propertyName, object resource, IEdmStructuredTypeReference structuredType,
@@ -699,8 +705,14 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
                     throw new ODataException(
                         Error.Format(SRResources.MappingDoesNotContainResourceType, structuredType.FullName()));
                 }
-
-                nestedReadContext.ResourceType = typeof(List<>).MakeGenericType(clrType);
+                if (readContext.IsDeltaOrDeltaSetOfT)
+                {
+                    nestedReadContext.ResourceType = typeof(DeltaSet<>).MakeGenericType(clrType);
+                }
+                else
+                {
+                    nestedReadContext.ResourceType = typeof(List<>).MakeGenericType(clrType);
+                }
             }
 
             return deserializer.ReadInline(resourceSetWrapper, edmType, nestedReadContext);
@@ -743,7 +755,7 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
             object value = deserializer.ReadInline(deltaResourceSetWrapper, edmType, nestedReadContext);
 
             string propertyName = readContext.Model.GetClrPropertyName(nestedProperty);
-            DeserializationHelpers.SetCollectionProperty(resource, nestedProperty, value, propertyName);
+            DeserializationHelpers.SetCollectionProperty(resource, nestedProperty, value, propertyName, context: readContext);
         }
 
         /// <summary>

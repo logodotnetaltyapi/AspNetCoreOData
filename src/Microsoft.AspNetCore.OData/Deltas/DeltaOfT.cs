@@ -25,7 +25,7 @@ namespace Microsoft.AspNetCore.OData.Deltas
     /// </summary>
     /// <typeparam name="T">T is the type of the instance this delta tracks changes for.</typeparam>
     [NonValidatingParameterBinding]
-    public class Delta<T> : Delta, IDelta, ITypedDelta where T : class
+    public class Delta<T> : Delta, IDelta, ITypedDelta, IDeltaInstanceOwner where T : class
     {
         // cache property accessors for this type and all its derived types.
         private static readonly ConcurrentDictionary<Type, Dictionary<string, PropertyAccessor<T>>> _propertyCache
@@ -144,7 +144,7 @@ namespace Microsoft.AspNetCore.OData.Deltas
                 }
             }
 
-            if (value is IDelta)
+            if (value is IDelta || value is IDeltaSet)
             {
                 return TrySetNestedResourceInternal(name, value);
             }
@@ -273,6 +273,7 @@ namespace Microsoft.AspNetCore.OData.Deltas
             return false;
         }
 
+
         /// <summary>
         /// Returns the instance that holds all the changes (and original values) being tracked by this Delta.
         /// </summary>
@@ -280,6 +281,9 @@ namespace Microsoft.AspNetCore.OData.Deltas
         {
             return _instance;
         }
+
+        ///<inheritdoc />
+        object IDeltaInstanceOwner.GetInstance() => GetInstance();
 
         /// <summary>
         /// Returns the known properties that have been modified through this <see cref="Delta"/> as an
@@ -695,7 +699,7 @@ namespace Microsoft.AspNetCore.OData.Deltas
             Debug.Assert(name != null, "Argument name is null");
 
             //Delta nested resources are navigational properties and only need to check property name is valid
-            if (!_allProperties.ContainsKey(name)
+            if (!_allProperties.ContainsKey(name))
             {
                 return false;
             }
@@ -706,11 +710,9 @@ namespace Microsoft.AspNetCore.OData.Deltas
                 return false;
             }
 
-            PropertyAccessor<T> cacheHit = _allProperties[name];
-            // Get the Delta<{NestedResourceType}>._instance using Reflection.
-            FieldInfo field = deltaNestedResource.GetType().GetField("_instance", BindingFlags.NonPublic | BindingFlags.Instance);
-            Contract.Assert(field != null, "field != null");
-            cacheHit.SetValue(_instance, field.GetValue(deltaNestedResource));
+            //Set original instance value to property accessor
+            PropertyAccessor<T> cacheHit = _allProperties[name];            
+            cacheHit.SetValue(_instance, (deltaNestedResource as IDeltaInstanceOwner).GetInstance());
 
             // Add the nested resource in the hierarchy.
             // Note: We shouldn't add the structural properties to the <code>_changedProperties</code>, which

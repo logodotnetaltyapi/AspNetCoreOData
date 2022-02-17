@@ -12,6 +12,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Edm;
 using Microsoft.AspNetCore.OData.Formatter.Value;
 using Microsoft.OData.Edm;
@@ -121,7 +122,7 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
             clearMethod.Invoke(collection, _emptyObjectArray);
         }
 
-        public static bool TryCreateInstance(Type collectionType, IEdmCollectionTypeReference edmCollectionType, Type elementType, out IEnumerable instance)
+        public static bool TryCreateInstance(Type collectionType, IEdmCollectionTypeReference edmCollectionType, Type elementType, out IEnumerable instance, ODataDeserializerContext context=null)
         {
             Contract.Assert(collectionType != null);
 
@@ -147,7 +148,17 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
                     genericDefinition == typeof(ICollection<>) ||
                     genericDefinition == typeof(IList<>))
                 {
-                    instance = Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType)) as IEnumerable;
+                    Type instanceType;
+                    if (context != null && context.IsDeltaOrDeltaSetOfT)
+                    {
+                        instanceType = typeof(DeltaSet<>).MakeGenericType(typeof(Delta<>).MakeGenericType(elementType));
+                    }
+                    else
+                    {
+                        instanceType = typeof(List<>).MakeGenericType(elementType);
+                    }
+                    //
+                    instance = Activator.CreateInstance(instanceType) as IEnumerable;
                     return true;
                 }
             }

@@ -1671,6 +1671,9 @@
             Returns the instance that holds all the changes (and original values) being tracked by this Delta.
             </summary>
         </member>
+        <member name="M:Microsoft.AspNetCore.OData.Deltas.Delta`1.Microsoft#AspNetCore#OData#Deltas#IDeltaInstanceOwner#GetInstance">
+            <inheritdoc />
+        </member>
         <member name="M:Microsoft.AspNetCore.OData.Deltas.Delta`1.GetChangedPropertyNames">
             <summary>
             Returns the known properties that have been modified through this <see cref="T:Microsoft.AspNetCore.OData.Deltas.Delta"/> as an
@@ -1738,6 +1741,14 @@
             Gets the expected type of the entity for which the changes are tracked.
             </summary>
         </member>
+        <member name="M:Microsoft.AspNetCore.OData.Deltas.DeltaSet`1.Microsoft#AspNetCore#OData#Deltas#IDeltaInstanceOwner#GetInstance">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.AspNetCore.OData.Deltas.DeltaSet`1.GetInstance">
+            <summary>
+            Returns the list of instances that holds all the changes (and original values) being tracked by this Delta.
+            </summary>
+        </member>
         <member name="T:Microsoft.AspNetCore.OData.Deltas.IDelta">
             <summary>
             <see cref="T:Microsoft.AspNetCore.OData.Deltas.IDelta" /> allows and tracks changes to an object.
@@ -1799,6 +1810,17 @@
         </member>
         <member name="P:Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource.Reason">
             <inheritdoc />
+        </member>
+        <member name="T:Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner">
+            <summary>
+            <see cref="T:Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner" /> is base interface for <see cref="T:Microsoft.AspNetCore.OData.Deltas.IDelta"/> and <see cref="T:Microsoft.AspNetCore.OData.Deltas.IDeltaSet"/> implementations that keeps changed properties of resources
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner.GetInstance">
+            <summary>
+            Returns the instance that holds all the changes (and original values) being tracked by this Delta.
+            </summary>
+            <returns>Instance(s) being tracked by this Delta.</returns>
         </member>
         <member name="T:Microsoft.AspNetCore.OData.Deltas.IDeltaLink">
             <summary>

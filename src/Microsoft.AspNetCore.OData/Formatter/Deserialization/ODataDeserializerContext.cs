@@ -21,6 +21,7 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
     public class ODataDeserializerContext
     {
         private bool? _isDeltaOfT;
+        private bool? _isDeltaSetOfT;
         private bool? _isDeltaDeleted;
         private bool? _isNoClrType;
 
@@ -54,17 +55,34 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
         /// </summary>
         public TimeZoneInfo TimeZone { get; set; }
 
+        internal bool IsDeltaOrDeltaSetOfT
+        {
+            get => IsDeltaOfT || IsDeltaSetOfT;
+        }
+
         internal bool IsDeltaOfT
         {
             get
             {
                 if (!_isDeltaOfT.HasValue)
                 {
-                    _isDeltaOfT = ResourceType != null && ResourceType.IsGenericType &&
-                        ResourceType.GetGenericTypeDefinition() == typeof(Delta<>);
+                    _isDeltaOfT = ResourceType != null && ResourceType.IsDeltaWrapper(out _);
                 }
 
                 return _isDeltaOfT.Value;
+            }
+        }
+
+        internal bool IsDeltaSetOfT
+        {
+            get
+            {
+                if (!_isDeltaSetOfT.HasValue)
+                {
+                    _isDeltaSetOfT = ResourceType != null && ResourceType.IsDeltaSetWrapper(out _);
+                }
+
+                return _isDeltaSetOfT.Value;
             }
         }
 

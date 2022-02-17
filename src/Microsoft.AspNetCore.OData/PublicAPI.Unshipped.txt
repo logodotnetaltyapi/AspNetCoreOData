@@ -214,6 +214,8 @@ Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource.Id.get -> System.Uri
 Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource.Id.set -> void
 Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource.Reason.get -> Microsoft.OData.DeltaDeletedEntryReason?
 Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource.Reason.set -> void
+Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner
+Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner.GetInstance() -> object
 Microsoft.AspNetCore.OData.Deltas.IDeltaSet
 Microsoft.AspNetCore.OData.Deltas.IDeltaSetItem
 Microsoft.AspNetCore.OData.Deltas.IDeltaSetItem.Kind.get -> Microsoft.AspNetCore.OData.Deltas.DeltaItemKind

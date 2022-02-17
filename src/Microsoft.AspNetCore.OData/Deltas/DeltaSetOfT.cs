@@ -6,8 +6,10 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.AspNetCore.OData.Abstracts;
 
 namespace Microsoft.AspNetCore.OData.Deltas
@@ -17,7 +19,7 @@ namespace Microsoft.AspNetCore.OData.Deltas
     /// </summary>
     [SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "<Pending>")]
     [NonValidatingParameterBinding]
-    public class DeltaSet<T> : Collection<IDeltaSetItem>, IDeltaSet, ITypedDelta where T : class
+    public class DeltaSet<T> : Collection<IDeltaSetItem>, IDeltaSet, ITypedDelta, IDeltaInstanceOwner where T : class
     {
         /// <summary>
         /// Gets the actual type of the structural object for which the changes are tracked.
@@ -28,6 +30,14 @@ namespace Microsoft.AspNetCore.OData.Deltas
         /// Gets the expected type of the entity for which the changes are tracked.
         /// </summary>
         public Type ExpectedClrType => typeof(T);
+
+        ///<inheritdoc />
+        object IDeltaInstanceOwner.GetInstance() => GetInstance();
+
+        /// <summary>
+        /// Returns the list of instances that holds all the changes (and original values) being tracked by this Delta.
+        /// </summary>
+        internal List<T> GetInstance() => this.Select(item => ((item as IDeltaInstanceOwner).GetInstance() as T)).ToList();
 
         #region Exclude unfinished APIs
 #if false

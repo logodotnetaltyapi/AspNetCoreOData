@@ -35,6 +35,8 @@ namespace Microsoft.AspNetCore.OData.Common
 
         public static bool IsDeltaSetWrapper(this Type type, out Type entityType) => IsTypeWrapper(typeof(DeltaSet<>), type, out entityType);
 
+        public static bool IsDeltaWrapper(this Type type, out Type entityType) => IsTypeWrapper(typeof(Delta<>), type, out entityType);
+
         public static bool IsSelectExpandWrapper(this Type type, out Type entityType) => IsTypeWrapper(typeof(SelectExpandWrapper<>), type, out entityType);
 
         public static bool IsComputeWrapper(this Type type, out Type entityType) => IsTypeWrapper(typeof(ComputeWrapper<>), type, out entityType);
