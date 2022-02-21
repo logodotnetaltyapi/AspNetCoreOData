@@ -151,7 +151,7 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
                     Type instanceType;
                     if (context != null && context.IsDeltaOrDeltaSetOfT)
                     {
-                        instanceType = typeof(DeltaSet<>).MakeGenericType(typeof(Delta<>).MakeGenericType(elementType));
+                        instanceType = typeof(DeltaSet<>).MakeGenericType(elementType);
                     }
                     else
                     {

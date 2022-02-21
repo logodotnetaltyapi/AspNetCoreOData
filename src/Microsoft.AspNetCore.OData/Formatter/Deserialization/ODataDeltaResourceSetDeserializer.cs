@@ -7,7 +7,9 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -288,13 +290,18 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
             {
                 // refactor how to get the CLR type
                 Type elementClrType = readContext.Model.GetClrType(elementType);
+                IEnumerable<string> keyProperties = (elementType as IEdmEntityTypeReference)?.Key().Select(keyProperty => readContext.Model.GetClrPropertyName(keyProperty));
 
                 Type deltaLinkType = typeof(DeltaDeletedLink<>).MakeGenericType(elementClrType);
-                IDeltaDeletedLink deltaLink = Activator.CreateInstance(deltaLinkType) as IDeltaDeletedLink;
+                IDeltaDeletedLink deltaLink = Activator.CreateInstance(deltaLinkType, keyProperties) as IDeltaDeletedLink;
 
                 deltaLink.Source = deletedLink.DeltaDeletedLink.Source;
-                deltaLink.Target = deletedLink.DeltaDeletedLink.Target;
+                deltaLink.Target = deletedLink.DeltaDeletedLink.Target;     
                 deltaLink.Relationship = deletedLink.DeltaDeletedLink.Relationship;
+
+                deltaLink.SourceKeys = DeserializationHelpers.CreateKeyProperties(deltaLink.Source, readContext).ToDictionary(k => k.Name, k => k.Value);
+                deltaLink.TargetKeys = DeserializationHelpers.CreateKeyProperties(deltaLink.Target, readContext).ToDictionary(k => k.Name, k => k.Value);
+
                 return deltaLink;
             }
         }
@@ -330,13 +337,18 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
             {
                 // refactor how to get the CLR type
                 Type elementClrType = readContext.Model.GetClrType(elementType);
+                IEnumerable<string> keyProperties = (elementType as IEdmEntityTypeReference)?.Key().Select(keyProperty => readContext.Model.GetClrPropertyName(keyProperty));
 
                 Type deltaLinkType = typeof(DeltaLink<>).MakeGenericType(elementClrType);
-                IDeltaLink deltaLink = Activator.CreateInstance(deltaLinkType) as IDeltaLink;
+                IDeltaLink deltaLink = Activator.CreateInstance(deltaLinkType, keyProperties) as IDeltaLink;
 
                 deltaLink.Source = link.DeltaLink.Source;
                 deltaLink.Target = link.DeltaLink.Target;
                 deltaLink.Relationship = link.DeltaLink.Relationship;
+
+                deltaLink.SourceKeys = DeserializationHelpers.CreateKeyProperties(deltaLink.Source, readContext).ToDictionary(k => k.Name, k => k.Value);
+                deltaLink.TargetKeys = DeserializationHelpers.CreateKeyProperties(deltaLink.Target, readContext).ToDictionary(k => k.Name, k => k.Value);
+
                 return deltaLink;
             }
         }

@@ -260,6 +260,9 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
                 {
                     IEnumerable<string> structuralProperties = structuredType.StructuralProperties()
                         .Select(edmProperty => model.GetClrPropertyName(edmProperty));
+                    IEnumerable<string> keyProperties = (structuredType as IEdmEntityTypeReference)?.Key()
+                        .Select(keyProperty => model.GetClrPropertyName(keyProperty));
+
 
                     Type resourceType = readContext.ResourceType;
                     if (readContext.IsDeltaSetOfT)
@@ -272,12 +275,12 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
                         PropertyInfo dynamicDictionaryPropertyInfo = model.GetDynamicPropertyDictionary(
                             structuredType.StructuredDefinition());
 
-                        return Activator.CreateInstance(resourceType, clrType, structuralProperties,
+                        return Activator.CreateInstance(resourceType, clrType, keyProperties, structuralProperties,
                             dynamicDictionaryPropertyInfo);
                     }
                     else
                     {
-                        return Activator.CreateInstance(resourceType, clrType, structuralProperties);
+                        return Activator.CreateInstance(resourceType, clrType, keyProperties, structuralProperties);
                     }
                 }
                 else
@@ -317,6 +320,12 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
                     // typed scenario
                     deltaDeletedResource.Id = deletedResource.Id;
                     deltaDeletedResource.Reason = deletedResource.Reason;
+
+                    deltaDeletedResource.Keys.Clear();
+                    foreach (var prop in DeserializationHelpers.CreateKeyProperties(deletedResource.Id, readContext).ToList())
+                    {
+                        deltaDeletedResource.Keys.Add(prop.Name, prop.Value);
+                    }
                 }
                 else if (resource is IEdmDeltaDeletedResourceObject deletedObject)
                 {
@@ -806,7 +815,7 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
                 TypeName = edmPropertyType.FullName(),
             };
 
-            resource.Properties = CreateKeyProperties(refLink.EntityReferenceLink.Url, readContext) ?? Array.Empty<ODataProperty>();
+            resource.Properties = DeserializationHelpers.CreateKeyProperties(refLink.EntityReferenceLink.Url, readContext) ?? Array.Empty<ODataProperty>();
             ODataResourceWrapper resourceWrapper = new ODataResourceWrapper(resource);
 
             foreach (var instanceAnnotation in refLink.EntityReferenceLink.InstanceAnnotations)
@@ -834,7 +843,7 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
                 return resourceWrapper;
             }
 
-            IEnumerable<ODataProperty> keys = CreateKeyProperties(resourceWrapper.Resource.Id, readContext);
+            IEnumerable<ODataProperty> keys = DeserializationHelpers.CreateKeyProperties(resourceWrapper.Resource.Id, readContext);
             if (keys == null)
             {
                 return resourceWrapper;
@@ -861,62 +870,6 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
             }
 
             return resourceWrapper;
-        }
-
-        /// <summary>
-        /// Do uri parsing to get the key values.
-        /// </summary>
-        /// <param name="id">The key Id.</param>
-        /// <param name="readContext">The reader context.</param>
-        /// <returns>The key properties.</returns>
-        [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
-        private static IList<ODataProperty> CreateKeyProperties(Uri id, ODataDeserializerContext readContext)
-        {
-            Contract.Assert(id != null);
-            Contract.Assert(readContext != null);
-
-            if (readContext.Request == null)
-            {
-                return null;
-            }
-
-            try
-            {
-                Uri serviceRootUri = null;
-                if (id.IsAbsoluteUri)
-                {
-                    string serviceRoot = readContext.Request.CreateODataLink();
-                    serviceRootUri = new Uri(serviceRoot, UriKind.Absolute);
-                }
-
-                var request = readContext.Request;
-                IEdmModel model = readContext.Model;
-
-                // TODO: shall we use the DI to inject the path parser?
-                DefaultODataPathParser pathParser = new DefaultODataPathParser();
-
-                IList<ODataProperty> properties = null;
-                var path = pathParser.Parse(model, serviceRootUri, id, request.GetRouteServices());
-                KeySegment keySegment = path.OfType<KeySegment>().LastOrDefault();
-                if (keySegment != null)
-                {
-                    properties = new List<ODataProperty>();
-                    foreach (var key in keySegment.Keys)
-                    {
-                        properties.Add(new ODataProperty
-                        {
-                            Name = key.Key,
-                            Value = key.Value
-                        });
-                    }
-                }
-
-                return properties;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
         }
     }
 }

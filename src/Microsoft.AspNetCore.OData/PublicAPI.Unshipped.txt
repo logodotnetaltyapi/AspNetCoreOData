@@ -173,23 +173,29 @@ Microsoft.AspNetCore.OData.Batch.UnbufferedODataBatchHandler.UnbufferedODataBatc
 Microsoft.AspNetCore.OData.Deltas.Delta
 Microsoft.AspNetCore.OData.Deltas.Delta.Delta() -> void
 Microsoft.AspNetCore.OData.Deltas.Delta<T>
+Microsoft.AspNetCore.OData.Deltas.Delta<T>.CompareInstance(T otherInstance) -> bool
 Microsoft.AspNetCore.OData.Deltas.Delta<T>.CopyChangedValues(T original) -> void
+Microsoft.AspNetCore.OData.Deltas.Delta<T>.CopyChangedValuesAndReturn(T original, Microsoft.AspNetCore.OData.Deltas.DeltaResult result = null) -> Microsoft.AspNetCore.OData.Deltas.DeltaResult
 Microsoft.AspNetCore.OData.Deltas.Delta<T>.CopyUnchangedValues(T original) -> void
+Microsoft.AspNetCore.OData.Deltas.Delta<T>.CopyUnchangedValuesAndReturn(T original, Microsoft.AspNetCore.OData.Deltas.DeltaResult result = null) -> Microsoft.AspNetCore.OData.Deltas.DeltaResult
 Microsoft.AspNetCore.OData.Deltas.Delta<T>.Delta() -> void
 Microsoft.AspNetCore.OData.Deltas.Delta<T>.Delta(System.Type structuralType) -> void
-Microsoft.AspNetCore.OData.Deltas.Delta<T>.Delta(System.Type structuralType, System.Collections.Generic.IEnumerable<string> updatableProperties) -> void
-Microsoft.AspNetCore.OData.Deltas.Delta<T>.Delta(System.Type structuralType, System.Collections.Generic.IEnumerable<string> updatableProperties, System.Reflection.PropertyInfo dynamicDictionaryPropertyInfo) -> void
+Microsoft.AspNetCore.OData.Deltas.Delta<T>.Delta(System.Type structuralType, System.Collections.Generic.IEnumerable<string> keyProperties, System.Collections.Generic.IEnumerable<string> updatableProperties) -> void
+Microsoft.AspNetCore.OData.Deltas.Delta<T>.Delta(System.Type structuralType, System.Collections.Generic.IEnumerable<string> keyProperties, System.Collections.Generic.IEnumerable<string> updatableProperties, System.Reflection.PropertyInfo dynamicDictionaryPropertyInfo) -> void
 Microsoft.AspNetCore.OData.Deltas.Delta<T>.GetInstance() -> T
 Microsoft.AspNetCore.OData.Deltas.Delta<T>.Patch(T original) -> void
+Microsoft.AspNetCore.OData.Deltas.Delta<T>.PatchAndReturn(T original) -> Microsoft.AspNetCore.OData.Deltas.DeltaResult
 Microsoft.AspNetCore.OData.Deltas.Delta<T>.Put(T original) -> void
+Microsoft.AspNetCore.OData.Deltas.Delta<T>.PutAndReturn(T original) -> Microsoft.AspNetCore.OData.Deltas.DeltaResult
 Microsoft.AspNetCore.OData.Deltas.Delta<T>.UpdatableProperties.get -> System.Collections.Generic.IList<string>
 Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>
 Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.DeltaDeletedResource() -> void
 Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.DeltaDeletedResource(System.Type structuralType) -> void
-Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.DeltaDeletedResource(System.Type structuralType, System.Collections.Generic.IEnumerable<string> updatableProperties) -> void
-Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.DeltaDeletedResource(System.Type structuralType, System.Collections.Generic.IEnumerable<string> updatableProperties, System.Reflection.PropertyInfo dynamicDictionaryPropertyInfo) -> void
+Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.DeltaDeletedResource(System.Type structuralType, System.Collections.Generic.IEnumerable<string> keyProperties, System.Collections.Generic.IEnumerable<string> updatableProperties) -> void
+Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.DeltaDeletedResource(System.Type structuralType, System.Collections.Generic.IEnumerable<string> keyProperties, System.Collections.Generic.IEnumerable<string> updatableProperties, System.Reflection.PropertyInfo dynamicDictionaryPropertyInfo) -> void
 Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.Id.get -> System.Uri
 Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.Id.set -> void
+Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.Keys.get -> System.Collections.Generic.Dictionary<string, object>
 Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.Reason.get -> Microsoft.OData.DeltaDeletedEntryReason?
 Microsoft.AspNetCore.OData.Deltas.DeltaDeletedResource<T>.Reason.set -> void
 Microsoft.AspNetCore.OData.Deltas.DeltaItemKind
@@ -198,9 +204,20 @@ Microsoft.AspNetCore.OData.Deltas.DeltaItemKind.DeltaDeletedLink = 2 -> Microsof
 Microsoft.AspNetCore.OData.Deltas.DeltaItemKind.DeltaLink = 3 -> Microsoft.AspNetCore.OData.Deltas.DeltaItemKind
 Microsoft.AspNetCore.OData.Deltas.DeltaItemKind.Resource = 0 -> Microsoft.AspNetCore.OData.Deltas.DeltaItemKind
 Microsoft.AspNetCore.OData.Deltas.DeltaItemKind.Unknown = 4 -> Microsoft.AspNetCore.OData.Deltas.DeltaItemKind
+Microsoft.AspNetCore.OData.Deltas.DeltaResult
+Microsoft.AspNetCore.OData.Deltas.DeltaResult.AddedLinks.get -> System.Collections.Generic.List<object>
+Microsoft.AspNetCore.OData.Deltas.DeltaResult.DeletedLinks.get -> System.Collections.Generic.List<object>
+Microsoft.AspNetCore.OData.Deltas.DeltaResult.DeletedResources.get -> System.Collections.Generic.List<object>
+Microsoft.AspNetCore.OData.Deltas.DeltaResult.DeltaResult() -> void
+Microsoft.AspNetCore.OData.Deltas.DeltaResult.UpdatedResources.get -> System.Collections.Generic.List<object>
 Microsoft.AspNetCore.OData.Deltas.DeltaSet<T>
+Microsoft.AspNetCore.OData.Deltas.DeltaSet<T>.CopyChangedValues(System.Collections.Generic.IEnumerable<T> originalSet) -> void
+Microsoft.AspNetCore.OData.Deltas.DeltaSet<T>.CopyChangedValuesAndReturn(System.Collections.Generic.IEnumerable<T> originalSet, Microsoft.AspNetCore.OData.Deltas.DeltaResult result = null) -> Microsoft.AspNetCore.OData.Deltas.DeltaResult
+Microsoft.AspNetCore.OData.Deltas.DeltaSet<T>.CopyUnchangedValues(System.Collections.Generic.IEnumerable<T> original) -> void
+Microsoft.AspNetCore.OData.Deltas.DeltaSet<T>.CopyUnchangedValuesAndReturn(System.Collections.Generic.IEnumerable<T> original, Microsoft.AspNetCore.OData.Deltas.DeltaResult result = null) -> Microsoft.AspNetCore.OData.Deltas.DeltaResult
 Microsoft.AspNetCore.OData.Deltas.DeltaSet<T>.DeltaSet() -> void
 Microsoft.AspNetCore.OData.Deltas.DeltaSet<T>.ExpectedClrType.get -> System.Type
+Microsoft.AspNetCore.OData.Deltas.DeltaSet<T>.GetInstance() -> System.Collections.Generic.IEnumerable<T>
 Microsoft.AspNetCore.OData.Deltas.DeltaSet<T>.StructuredType.get -> System.Type
 Microsoft.AspNetCore.OData.Deltas.IDelta
 Microsoft.AspNetCore.OData.Deltas.IDelta.Clear() -> void
@@ -209,13 +226,20 @@ Microsoft.AspNetCore.OData.Deltas.IDelta.GetUnchangedPropertyNames() -> System.C
 Microsoft.AspNetCore.OData.Deltas.IDelta.TryGetPropertyType(string name, out System.Type type) -> bool
 Microsoft.AspNetCore.OData.Deltas.IDelta.TryGetPropertyValue(string name, out object value) -> bool
 Microsoft.AspNetCore.OData.Deltas.IDelta.TrySetPropertyValue(string name, object value) -> bool
+Microsoft.AspNetCore.OData.Deltas.IDeltaComparable<T>
+Microsoft.AspNetCore.OData.Deltas.IDeltaComparable<T>.CompareInstance(T otherInstance) -> bool
 Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource
 Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource.Id.get -> System.Uri
 Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource.Id.set -> void
+Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource.Keys.get -> System.Collections.Generic.Dictionary<string, object>
 Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource.Reason.get -> Microsoft.OData.DeltaDeletedEntryReason?
 Microsoft.AspNetCore.OData.Deltas.IDeltaDeletedResource.Reason.set -> void
-Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner
-Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner.GetInstance() -> object
+Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner<T>
+Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner<T>.CopyChangedValues(T original) -> void
+Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner<T>.CopyChangedValuesAndReturn(T original, Microsoft.AspNetCore.OData.Deltas.DeltaResult changeResult = null) -> Microsoft.AspNetCore.OData.Deltas.DeltaResult
+Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner<T>.CopyUnchangedValues(T original) -> void
+Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner<T>.CopyUnchangedValuesAndReturn(T original, Microsoft.AspNetCore.OData.Deltas.DeltaResult changeResult = null) -> Microsoft.AspNetCore.OData.Deltas.DeltaResult
+Microsoft.AspNetCore.OData.Deltas.IDeltaInstanceOwner<T>.GetInstance() -> T
 Microsoft.AspNetCore.OData.Deltas.IDeltaSet
 Microsoft.AspNetCore.OData.Deltas.IDeltaSetItem
 Microsoft.AspNetCore.OData.Deltas.IDeltaSetItem.Kind.get -> Microsoft.AspNetCore.OData.Deltas.DeltaItemKind

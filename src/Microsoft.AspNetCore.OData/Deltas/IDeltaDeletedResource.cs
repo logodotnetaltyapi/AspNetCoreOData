@@ -7,6 +7,7 @@
 
 using Microsoft.OData;
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.AspNetCore.OData.Deltas
 {
@@ -17,6 +18,9 @@ namespace Microsoft.AspNetCore.OData.Deltas
     {
         /// <inheritdoc />
         Uri Id { get; set; }
+
+        /// <inheritdoc />
+        Dictionary<string, object> Keys { get; }
 
         /// <inheritdoc />
         DeltaDeletedEntryReason? Reason { get; set; }

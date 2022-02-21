@@ -26,6 +26,16 @@ namespace Microsoft.AspNetCore.OData.Deltas
         }
 
         /// <summary>
+        /// Helper method to check whether the given type is DeltaSet generic type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>True if it is a DeltaSet generic type; false otherwise.</returns>
+        public static bool IsDeltaSetOfT(Type type)
+        {
+            return type != null && type.IsGenericType && type.GetGenericTypeDefinition() == typeof(DeltaSet<>);
+        }
+
+        /// <summary>
         /// Helper method to check whether the given object is Delta resource set.
         /// </summary>
         /// <param name="result">The given object.</param>

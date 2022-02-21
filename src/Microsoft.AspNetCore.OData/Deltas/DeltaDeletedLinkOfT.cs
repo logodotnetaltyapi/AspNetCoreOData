@@ -6,6 +6,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.AspNetCore.OData.Deltas
 {
@@ -17,8 +18,9 @@ namespace Microsoft.AspNetCore.OData.Deltas
         /// <summary>
         /// Initializes a new instance of <see cref="DeltaDeletedLink{T}"/>.
         /// </summary>
-        public DeltaDeletedLink()
-            : base()
+        /// <param name="keyProperties">The set of properties which are keys of Delta generic type <typeparamref name="T"/>>.</param>
+        public DeltaDeletedLink(IEnumerable<string> keyProperties)
+            : base(keyProperties)
         {
         }
 
@@ -26,8 +28,9 @@ namespace Microsoft.AspNetCore.OData.Deltas
         /// Initializes a new instance of <see cref="DeltaDeletedLink{T}"/>.
         /// </summary>
         /// <param name="structuralType">The actual structural type.</param>
-        public DeltaDeletedLink(Type structuralType)
-            : base(structuralType)
+        /// <param name="keyProperties">The set of properties which are keys of Delta generic type <typeparamref name="T"/>>.</param>
+        public DeltaDeletedLink(Type structuralType, IEnumerable<string> keyProperties)
+            : base(structuralType, keyProperties)
         {
         }
 

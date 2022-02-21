@@ -26,7 +26,7 @@ namespace Microsoft.AspNetCore.OData.Tests.Deltas
         {
             // Arrange & Act & Assert
             ExceptionAssert.Throws<InvalidOperationException>(
-                () => new DeltaLink<B>(typeof(A)),
+                () => new DeltaLink<B>(typeof(A),null),
                 "The actual entity type 'Microsoft.AspNetCore.OData.Tests.Deltas.DeltaLinkOfTTests+A' is not assignable to the expected type 'Microsoft.AspNetCore.OData.Tests.Deltas.DeltaLinkOfTTests+B'.");
         }
 
@@ -34,7 +34,7 @@ namespace Microsoft.AspNetCore.OData.Tests.Deltas
         public void CtorDeltaLinkOfT_Sets_PropertyValue()
         {
             // Arrange & Act
-            DeltaLink<A> link = new DeltaLink<A>(typeof(B))
+            DeltaLink<A> link = new DeltaLink<A>(typeof(B), null)
             {
                 Source = new Uri("http://source"),
                 Target = new Uri("http://target"),

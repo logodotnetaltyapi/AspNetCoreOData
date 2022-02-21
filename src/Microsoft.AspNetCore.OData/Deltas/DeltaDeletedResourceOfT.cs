@@ -41,10 +41,11 @@ namespace Microsoft.AspNetCore.OData.Deltas
         /// </summary>
         /// <param name="structuralType">The derived entity type for which the changes would be tracked.
         /// <paramref name="structuralType"/> should be assignable to instances of <typeparamref name="T"/>.</param>
+        /// <param name="keyProperties">The set of properties which are keys of Delta generic type <typeparamref name="T"/>>.</param>
         /// <param name="updatableProperties">The set of properties that can be updated or reset. Unknown property
         /// names, including those of dynamic properties, are ignored.</param>
-        public DeltaDeletedResource(Type structuralType, IEnumerable<string> updatableProperties)
-            : this(structuralType, updatableProperties: updatableProperties, dynamicDictionaryPropertyInfo: null)
+        public DeltaDeletedResource(Type structuralType, IEnumerable<string> keyProperties, IEnumerable<string> updatableProperties)
+            : this(structuralType, keyProperties:keyProperties, updatableProperties: updatableProperties, dynamicDictionaryPropertyInfo: null)
         {
         }
 
@@ -53,17 +54,21 @@ namespace Microsoft.AspNetCore.OData.Deltas
         /// </summary>
         /// <param name="structuralType">The derived entity type which the changes would be tracked.
         /// <paramref name="structuralType"/> should be assignable to instances of <typeparamref name="T"/>.</param>
+        /// <param name="keyProperties">The set of properties which are keys of Delta generic type <typeparamref name="T"/>>.</param>
         /// <param name="updatableProperties">The set of properties that can be updated or reset. Unknown property
         /// names, including those of dynamic properties, are ignored.</param>
         /// <param name="dynamicDictionaryPropertyInfo">The property info that is used as dictionary of dynamic
         /// properties. <c>null</c> means this entity type is not open.</param>
-        public DeltaDeletedResource(Type structuralType, IEnumerable<string> updatableProperties, PropertyInfo dynamicDictionaryPropertyInfo)
-            : base(structuralType, updatableProperties, dynamicDictionaryPropertyInfo)
+        public DeltaDeletedResource(Type structuralType, IEnumerable<string> keyProperties, IEnumerable<string> updatableProperties, PropertyInfo dynamicDictionaryPropertyInfo)
+            : base(structuralType, keyProperties, updatableProperties, dynamicDictionaryPropertyInfo)
         {
         }
 
         /// <inheritdoc />
         public Uri Id { get; set; }
+
+        /// <inheritdoc />
+        public Dictionary<string, object> Keys { get; } = new Dictionary<string, object>();
 
         /// <inheritdoc />
         public DeltaDeletedEntryReason? Reason { get; set; }

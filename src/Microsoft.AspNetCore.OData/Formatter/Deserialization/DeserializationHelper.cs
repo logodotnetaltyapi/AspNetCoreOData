@@ -8,16 +8,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.AspNetCore.OData.Common;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Edm;
+using Microsoft.AspNetCore.OData.Extensions;
 using Microsoft.AspNetCore.OData.Formatter.Value;
+using Microsoft.AspNetCore.OData.Routing.Parser;
 using Microsoft.OData;
 using Microsoft.OData.Edm;
+using Microsoft.OData.UriParser;
 
 namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
 {
@@ -446,6 +451,62 @@ namespace Microsoft.AspNetCore.OData.Formatter.Deserialization
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Do uri parsing to get the key values.
+        /// </summary>
+        /// <param name="id">The key Id.</param>
+        /// <param name="readContext">The reader context.</param>
+        /// <returns>The key properties.</returns>
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
+        internal static IList<ODataProperty> CreateKeyProperties(Uri id, ODataDeserializerContext readContext)
+        {
+            Contract.Assert(id != null);
+            Contract.Assert(readContext != null);
+
+            if (readContext.Request == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                Uri serviceRootUri = null;
+                if (id.IsAbsoluteUri)
+                {
+                    string serviceRoot = readContext.Request.CreateODataLink();
+                    serviceRootUri = new Uri(serviceRoot, UriKind.Absolute);
+                }
+
+                var request = readContext.Request;
+                IEdmModel model = readContext.Model;
+
+                // TODO: shall we use the DI to inject the path parser?
+                DefaultODataPathParser pathParser = new DefaultODataPathParser();
+
+                IList<ODataProperty> properties = null;
+                var path = pathParser.Parse(model, serviceRootUri, id, request.GetRouteServices());
+                KeySegment keySegment = path.OfType<KeySegment>().LastOrDefault();
+                if (keySegment != null)
+                {
+                    properties = new List<ODataProperty>();
+                    foreach (var key in keySegment.Keys)
+                    {
+                        properties.Add(new ODataProperty
+                        {
+                            Name = key.Key,
+                            Value = key.Value
+                        });
+                    }
+                }
+
+                return properties;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

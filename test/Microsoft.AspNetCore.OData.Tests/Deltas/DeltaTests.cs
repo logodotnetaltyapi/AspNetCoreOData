@@ -106,7 +106,7 @@ namespace Microsoft.AspNetCore.OData.Tests.Deltas
             Type dynamicType = typeof(AddressWithDynamicContainer);
             PropertyInfo dynamicDictionaryPropertyinfo = dynamicType.GetProperty("Dynamics");
             Delta<AddressWithDynamicContainer> delta = new Delta<AddressWithDynamicContainer>(
-                dynamicType, null, dynamicDictionaryPropertyinfo);
+                dynamicType, null, null, dynamicDictionaryPropertyinfo);
 
             // Act & Assert
             string propertyName = "DynamicPropertyName";
@@ -137,7 +137,7 @@ namespace Microsoft.AspNetCore.OData.Tests.Deltas
             Type dynamicType = typeof(AddressWithDynamicContainer);
             PropertyInfo dynamicDictionaryPropertyinfo = dynamicType.GetProperty("NonSetDynamics");
             Delta<AddressWithDynamicContainer> delta = new Delta<AddressWithDynamicContainer>(
-                dynamicType, null, dynamicDictionaryPropertyinfo);
+                dynamicType, null, null, dynamicDictionaryPropertyinfo);
 
             // Act
             Action test = () => delta.TrySetPropertyValue("AnyDynamicName", 42);
@@ -426,7 +426,7 @@ namespace Microsoft.AspNetCore.OData.Tests.Deltas
             };
 
             PropertyInfo propertyInfo = typeof(SimpleOpenAddress).GetProperty("Properties");
-            Delta<SimpleOpenAddress> delta = new Delta<SimpleOpenAddress>(typeof(SimpleOpenAddress), null, propertyInfo);
+            Delta<SimpleOpenAddress> delta = new Delta<SimpleOpenAddress>(typeof(SimpleOpenAddress), null, null, propertyInfo);
             delta.TrySetPropertyValue("City", "ChangedCity");
             delta.TrySetPropertyValue("IntProp", 1);
 
@@ -544,7 +544,7 @@ namespace Microsoft.AspNetCore.OData.Tests.Deltas
             };
 
             PropertyInfo propertyInfo = typeof(SimpleOpenAddress).GetProperty("Properties");
-            Delta<SimpleOpenAddress> delta = new Delta<SimpleOpenAddress>(typeof(SimpleOpenAddress), null, propertyInfo);
+            Delta<SimpleOpenAddress> delta = new Delta<SimpleOpenAddress>(typeof(SimpleOpenAddress), null, null, propertyInfo);
             delta.TrySetPropertyValue("City", "ChangedCity");
             delta.TrySetPropertyValue("IntProp", 1);
 
@@ -702,7 +702,7 @@ namespace Microsoft.AspNetCore.OData.Tests.Deltas
             // Arrange
             string expectedString = "hello, world";
             int expectedInt = 24;
-            Delta<Base> delta = new Delta<Base>(typeof(Base), new[] { "BaseInt" });
+            Delta<Base> delta = new Delta<Base>(typeof(Base), null, new[] { "BaseInt" });
             delta.TrySetPropertyValue("BaseInt", expectedInt);
 
             Base entity = new Base { BaseInt = 42, BaseString = expectedString };

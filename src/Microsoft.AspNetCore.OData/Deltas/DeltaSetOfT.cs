@@ -6,11 +6,13 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.AspNetCore.OData.Abstracts;
+using Microsoft.OData;
 
 namespace Microsoft.AspNetCore.OData.Deltas
 {
@@ -19,7 +21,7 @@ namespace Microsoft.AspNetCore.OData.Deltas
     /// </summary>
     [SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "<Pending>")]
     [NonValidatingParameterBinding]
-    public class DeltaSet<T> : Collection<IDeltaSetItem>, IDeltaSet, ITypedDelta, IDeltaInstanceOwner where T : class
+    public class DeltaSet<T> : Collection<IDeltaSetItem>, IDeltaSet, ITypedDelta, IDeltaInstanceOwner<ICollection<T>> where T : class
     {
         /// <summary>
         /// Gets the actual type of the structural object for which the changes are tracked.
@@ -31,32 +33,33 @@ namespace Microsoft.AspNetCore.OData.Deltas
         /// </summary>
         public Type ExpectedClrType => typeof(T);
 
-        ///<inheritdoc />
-        object IDeltaInstanceOwner.GetInstance() => GetInstance();
-
         /// <summary>
         /// Returns the list of instances that holds all the changes (and original values) being tracked by this Delta.
         /// </summary>
-        internal List<T> GetInstance() => this.Select(item => ((item as IDeltaInstanceOwner).GetInstance() as T)).ToList();
+        public ICollection<T> GetInstance()
+        {
+            return this.Where(item => item is IDeltaInstanceOwner<T>).Select(item => (item as IDeltaInstanceOwner<T>).GetInstance()).ToList();
+        }
 
-        #region Exclude unfinished APIs
-#if false
-        /// <summary>
-        ///  Overwrites the <paramref name="originalSet"/> entity with the changes tracked by this Delta resource set.
-        /// </summary>
-        /// <remarks>
-        /// TODO: this functionality hasn't finished yet. We'd like to get more feedback about how to
-        /// patch the deltaset to the original data source.
-        /// </remarks>
-        /// <param name="originalSet">The original set.</param>
-        internal void Patch(IEnumerable originalSet)
+        /// <inheritdoc />
+        public void CopyChangedValues(ICollection<T> originalSet)
+        {
+            CopyChangedValuesAndReturn(originalSet);
+        }
+
+        /// <inheritdoc />
+        public DeltaResult CopyChangedValuesAndReturn(ICollection<T> originalSet, DeltaResult result = null)
         {
             if (originalSet == null)
             {
                 throw Error.ArgumentNull(nameof(originalSet));
             }
 
-            // TODO: work out the patch process
+            if (result == null)
+            {
+                result = new DeltaResult();
+            }
+
             foreach (IDeltaSetItem delta in this)
             {
                 T originalObj = GetOriginal(delta, originalSet);
@@ -64,38 +67,90 @@ namespace Microsoft.AspNetCore.OData.Deltas
                 switch (delta)
                 {
                     case IDelta deltaResource:
-                        IDeltaDeletedResource deltaDeleteResource = delta as IDeltaDeletedResource;
+                        DeltaDeletedResource<T> deltaDeleteResource = delta as DeltaDeletedResource<T>;
                         if (deltaDeleteResource != null)
                         {
-                            // TODO: it's a delta deleted resource
+                            if (originalObj != null)
+                            {
+                                originalSet.Remove(originalObj);
+                            }
+
+                            T instance = deltaDeleteResource.GetInstance();
+                            if(deltaDeleteResource.Reason == DeltaDeletedEntryReason.Deleted)
+                            {
+                                result.DeletedResources.Add(instance);
+                            }
+                            else
+                            {
+                                result.DeletedLinks.Add(instance);
+                            }
                         }
                         else
                         {
-                            // TODO: it's a normal (added, updated) resource
+                            Delta<T> deltaOfT = deltaResource as Delta<T>;
+                            T instance = deltaOfT.GetInstance();
+
+                            if (originalObj == null)
+                            {
+                                originalSet.Add(instance);
+                                result.AddedLinks.Add(instance);
+                            }
+                            else
+                            {
+                                result = deltaOfT.CopyChangedValuesAndReturn(originalObj, result);
+                                result.UpdatedResources.Add(instance);
+                            }
+                           
                         }
                         break;
 
                     case IDeltaDeletedLink deltaDeletedLink:
-                        // TODO: a delta deleted link
+                        DeltaDeletedLink<T> deletedLinkOfT = delta as DeltaDeletedLink<T>;
+                        if (deletedLinkOfT != null)
+                        {
+                            originalSet.Remove(originalObj);
+                            result.DeletedLinks.Add(deletedLinkOfT.GetInstance());
+                        }
                         break;
 
                     case IDeltaLink deltaLink:
-                        // TODO: a delta added link
+                        DeltaLink<T> linkOfT = delta as DeltaLink<T>;
+                        if (linkOfT!=null)
+                        {
+                            T instance = linkOfT.GetInstance();
+
+                            originalSet.Add(instance);
+                            result.AddedLinks.Add(instance);
+                        }
                         break;
 
                     default:
                         throw Error.InvalidOperation($"Unknown delta type {delta.GetType()}");
                 }
             }
+
+            return result;
+        }
+
+        /// <inheritdoc />
+        public void CopyUnchangedValues(ICollection<T> original)
+        {
+            CopyUnchangedValuesAndReturn(original);
+        }
+
+        /// <inheritdoc />
+        public DeltaResult CopyUnchangedValuesAndReturn(ICollection<T> original, DeltaResult result = null)
+        {
+            return result;
         }
 
         /// <summary>
-        /// Find the related instance.
+        /// Find the related instance from given list of items
         /// </summary>
         /// <param name="deltaItem">The delta item.</param>
         /// <param name="originalSet">The original set.</param>
         /// <returns></returns>
-        protected virtual T GetOriginal(IDeltaSetItem deltaItem, IEnumerable originalSet)
+        private T GetOriginal(IDeltaSetItem deltaItem, IEnumerable<T> originalSet)
         {
             if (deltaItem == null)
             {
@@ -107,9 +162,12 @@ namespace Microsoft.AspNetCore.OData.Deltas
                 throw Error.ArgumentNull(nameof(originalSet));
             }
 
+            if (deltaItem is IDeltaComparable<T> deltaComparable)
+            {
+                return originalSet.FirstOrDefault(item => deltaComparable.CompareInstance(item));
+            }
+
             return null;
         }
-#endif
-#endregion
     }
 }

@@ -6,6 +6,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.AspNetCore.OData.Deltas
 {
@@ -19,10 +20,14 @@ namespace Microsoft.AspNetCore.OData.Deltas
         /// </summary>
         Uri Source { get; set; }
 
+        Dictionary<string, object> SourceKeys { get; set; }
+
         /// <summary>
         /// The Uri of the related entity, which may be absolute or relative.
         /// </summary>
         Uri Target { get; set; }
+
+        Dictionary<string, object> TargetKeys { get; set; }
 
         /// <summary>
         /// The name of the relationship property on the parent object.
